@@ -13,14 +13,14 @@ calculateToss
 if [[ $toss -eq $HEAD ]]
 then
    echo "user win a toss"
-   #userVariable=read -p "x or o take anyone"
+   userVariable=read -p "x or o take anyone"
 else
    echo "computer win a toss"
-  # tossValue=$(calculateToss)
-   #   if [[ $tossvalue -eq 0 ]]
-    #  then
-     #     computerVariable=o
-      #else
-       #   computerVariable=x
-      #fi
+   tossValue=$(calculateToss)
+     if [[ $tossvalue -eq 0 ]]
+     then
+          computerVariable=o
+     else
+          computerVariable=x
+     fi
 fi
