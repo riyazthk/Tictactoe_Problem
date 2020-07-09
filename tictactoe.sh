@@ -18,22 +18,22 @@ function computerValue(){
       local tossvalue=$1
          if [[ $tossvalue -eq 0 ]]
          then
-             computerVariable=3
+             computerVariable="x"
          else
-             computerVariable=4
+             computerVariable="o"
          fi
-             echo $((computerVariable))
+             echo $computerVariable
 }
 
 function userValue(){
     local computerVariable=$1
-       if [[ $computerVariable -eq 3 ]]
+       if [[ $computerVariable == "x" ]]
        then
-          userVariable=4
+          userVariable="o"
        else
-          userVariable=3
+          userVariable="x"
        fi
-          echo $((userVariable))
+          echo $userVariable
 }
 
 function computerVal(){
@@ -59,9 +59,9 @@ function alternatePlay(){
 
 function cellChecking(){
      local cell=$1
-        while [[ board[cell]!="_" ]]
+        while [[ ${board[cell]} != "_"  ]]
         do
-            if [[ board[cell] -eq "_" ]]
+            if [[ ${board[cell]} == "_" ]]
             then
                 break
             else
@@ -80,47 +80,58 @@ function printValues(){
 
         for i in ${!board[@]}
         do
-        echo "$i=>${board[$i]}"
+           echo "$i=>${board[$i]}"
         done
-echo $((0))
+           echo $((0))
 }
 
 function rowChecking(){
+    local count=$1
     rowValue=0
        while [[ $rowValue -lt 9 ]]
        do
           firstValue=$(($rowValue))
           secondValue=$(($firstValue+1))
           thirdValue=$(($secondValue+1))
-          if [[ ${board[firstValue]} -eq ${board[secondValue]} && ${board[secondValue]} -eq ${board[thirdValue]} ]]
+          if [[ ${board[firstValue]} == ${board[secondValue]} && ${board[secondValue]} == ${board[thirdValue]} ]]
           then
              result=1
              break
           else
              result=0
           fi
+            if [[ $thirdValue -eq 8 && $result -eq 0 ]]
+            then
+                result=$(columnChecking $count)
+            fi
             rowValue=$(($thirdValue + 1))
        done
            echo $((result))
 }
 
 function columnChecking(){
+    local count=$1
     columnValue=0
-    count=1
-          while [[ $count -le 9 ]]
+    counts=1
+          while [[ $counts -le 9 ]]
           do
             firstValue=$(($columnValue))
             secondValue=$(($firstValue+3))
             thirdValue=$(($secondValue+3))
-            if [[ ${board[firstValue]} -eq ${board[secondValue]} && ${board[secondValue]} -eq ${board[thirdValue]} ]]
+            if [[ ${board[firstValue]} == ${board[secondValue]} && ${board[secondValue]} == ${board[thirdValue]} ]]
             then
-               count=$(($count+3))
+               counts=$(($counts+3))
                result=1
                break
             else
-               count=$(($count+3))
+               counts=$(($counts+3))
                result=0
             fi
+            if [[ $thirdValue -eq 8 && $result -eq 0 ]]
+            then
+                result=$(diagonalChecking $count)
+            fi
+
                columnValue=$(($thirdValue-5))
             done
                echo $((result))
@@ -128,10 +139,10 @@ function columnChecking(){
 
 function diagonalChecking(){
     local count=$1
-           if [[ ${board[0]} -eq ${board[4]} && ${board[4]} -eq ${board[8]} ]]
+           if [[ ${board[0]} == ${board[4]} && ${board[4]} == ${board[8]} ]]
            then
                result=1
-           elif [[ ${board[2]} -eq ${board[4]} && ${board[4]} -eq ${board[6]} ]]
+           elif [[ ${board[2]} == ${board[4]} && ${board[4]} == ${board[6]} ]]
            then
                result=1
            else
@@ -143,24 +154,6 @@ function diagonalChecking(){
                  echo $((result))
 }
 
-function gameRule(){
-    local count=$1
-       if [[ $count -ge 5 ]]
-       then
-          result=$(rowChecking)
-             if [[ $result -eq 1 ]]
-             then
-                break
-             fi
-           result=$(columnChecking)
-             if [[ $result -eq 1 ]]
-             then
-                break
-             fi
-           result=$(diagonalChecking $count)
-       fi
-          echo $((result))
-}
 
 function playGame(){
      local starts=$1
@@ -187,11 +180,14 @@ function playGame(){
                count=$(( $count+1 ))
                print=$(printValues)
                starts=$(alternatePlay $starts)
-               result=$(gameRule $count)
-                  if [[ $result -eq 1 ]]
+               if [[ $count -ge 5 ]]
+               then
+                  result=$(rowChecking $count)
+               fi
+               if [[ $result -eq 1 ]]
                   then
-                     break 3
-                  fi
+                     break 
+               fi
            fi
         done
               if [[ $result -eq 1 ]]
@@ -215,6 +211,5 @@ else
    computerVariable=$(computerValue $tossValue)
    userVariable=$(userValue $computerVariable)
    $(playGame $computerStarts $computerVariable $userVariable)
-
 
 fi
