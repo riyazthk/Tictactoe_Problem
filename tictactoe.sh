@@ -13,27 +13,6 @@ computerStarts=2
 function calculateToss(){
 toss=$((RANDOM%2))
 }
-function computerValue(){
-      local tossValue=$1
-         if [[ $tossValue -eq 0 ]]
-         then
-             computerVariable="x"
-         else
-             computerVariable="o"
-         fi
-             echo $computerVariable
-}
-
-function userValue(){
-    local computer=$1
-       if [[ $computer == "x" ]]
-       then
-          userVariable="o"
-       else
-          userVariable="x"
-       fi
-          echo $userVariable
-}
 
 function computerVal(){
     local userVariable=$1
@@ -208,10 +187,4 @@ then
    read -p "enter a x or o" userVariable
    computerVariable=$(computerVal $userVariable)
    $(playGame $userStarts $computerVariable $userVariable)
-else
-   echo "computer win a toss"
-   tossValue=$(calculateToss)
-   computerVariable=$(computerValue $tossValue)
-   userVariable=$(userValue $computerVariable)
-   $(playGame $computerStarts $computerVariable $userVariable)
 fi
