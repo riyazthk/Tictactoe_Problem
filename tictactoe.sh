@@ -80,9 +80,14 @@ function printValues(){
 
      for i in "${!board[@]}"
      do
-       echo "$i=>${board[$i]}"
-     done
-           echo $((0))
+      echo "$i=>${board[$i]}"
+    done
+  #  echo "${board[0]} | ${board[1]} | ${board[2]}"
+  #  echo "---------------------------------------"
+  #  echo "${board[3]} | ${board[4]} | ${board[5]}"
+  #  echo "---------------------------------------"
+  #  echo "${board[6]} | ${board[7]} | ${board[8]}"
+       echo $((0))
 }
 
 function rowChecking(){
@@ -141,7 +146,11 @@ function columnChecking(){
 
 function diagonalChecking(){
     local count=$1
-           if [[ ${board[0]} == ${board[4]} && ${board[4]} == ${board[8]} && ${board[0]} != "_" && ${board[4]} != "_" &&  ${board[8]} != "_" ]]
+    diagonalValue=0
+    firstValue=$(($diagonalValue))
+    secondValue=$(($firstValue+4))
+    thirdValue=$(($secondValue+4))
+           if [[ ${board[firstValue]} == ${board[secondValue]} && ${board[secondValue]} == ${board[thirdValue]} && ${board[firstValue]} != "_" && ${board[secondValue]} != "_" &&  ${board[thirdValue]} != "_" ]]
            then
                print=$(printValues)
                result=1
@@ -165,24 +174,28 @@ function diagonalBlock(){
            if [[ ${board[0]} == ${board[4]} && ${board[8]} == "_" && ${board[0]} != "_" && ${board[4]} != "_" ]]
            then
                #board[8]=$computerSymbols
-               block=8
-               print=$(printValues)
+               val=8
+               block=$(($val))
+               #print=$(printValues)
            elif [[ ${board[4]} == ${board[8]} && ${board[0]} == "_" && ${board[4]} != "_" && ${board[8]} != "_" ]]
            then
                #board[0]=$computerSymbols
-               block=0
-               print=$(printValues)
+               val=0
+               block=$(($val))
+               #print=$(printValues)
            elif [[ ${board[2]} == ${board[4]} &&  ${board[6]} == "_" && ${board[2]} != "_" && ${board[4]} != "_" ]]
            then
                #board[6]=$computerSymbols
-               block=6
-               print=$(printValues)
+               val=6
+               block=$(($val))
+               #print=$(printValues)
            else
                 if [[ ${board[4]} == ${board[6]} && ${board[2]} == "_" && ${board[6]} != "_" && ${board[4]} != "_" ]]
                 then
                     #board[2]=$computerSymbols
-                    block=2
-                     print=$(printValues)
+                    val=2
+                    block=$(($val))
+                    #print=$(printValues)
                 fi
            fi
                echo $((block))
@@ -199,22 +212,31 @@ function columnBlock(){
             thirdValue=$(($secondValue+3))
             if [[ ${board[firstValue]} == ${board[secondValue]} && ${board[thirdValue]} == "_" && ${board[firstValue]} != "_" && ${board[secondValue]} != "_" ]]
             then
-               counts=$(($counts+3))
+                counts=$(($counts+3))
               # board[$thirdValue]=$computerSymbols
                 block=$thirdValue
-               print=$(printValues)
+              # print=$(printValues)
                break
             elif [[ ${board[secondValue]} == ${board[thirdValue]} && ${board[firstValue]}  == "_" &&  ${board[secondValue]} != "_" && ${board[thirdValue]} != "_" ]]
             then
                counts=$(($counts+3))
               # board[$firstValue]=$computerSymbols
                 block=$firstValue
-               print=$(printValues)
+              # print=$(printValues)
                break
+            elif [[   ${board[firstValue]} == ${board[thirdValue]} && ${board[secondValue]}  == "_" &&  ${board[firstValue]} != "_" && ${board[thirdValue]} != "_" ]]
+              then
+                counts=$(($counts+3))
+              # board[$firstValue]=$computerSymbols
+                block=$secondValue
+              # print=$(printValues)
+               break
+
             fi
             if [[ $thirdValue -eq 8 ]]
             then
                 block=$(diagonalBlock $computerSymbols)
+                break
             fi
                 columnValue=$(($thirdValue-5))
           done
@@ -244,6 +266,13 @@ function rowBlock(){
               block=$firstValue
              print=$(printValues)
              break
+          elif [[ ${board[firstValue]} == ${board[thirdValue]} &&  ${board[secondValue]} == "_" && ${board[firstValue]} != "_" && ${board[thirdValue]} != "_" ]]
+           then
+            #  board[$thirdValue]=$computerSymbols
+             block=$secondValue
+             print=$(printValues)
+             break
+
           fi
             if [[ $thirdValue -eq 8 ]]
             then
@@ -271,7 +300,7 @@ function playGame(){
               starts=$(alternatePlay $starts)
                if [[ $count -ge 5 ]]
                then
-                  result=$(rowChecking $count)
+                  result=$(rowChecking $count $computerSymbols)
                fi
                if [[ $result -eq 1 ]]
                then
@@ -281,8 +310,8 @@ function playGame(){
                if [[ $count -ge 3 ]]
                then
                   block=$(rowBlock $computerSymbols)
-                  board[$block]=$computerSymbols
-                  result=$(rowChecking $count)
+                  board[block]=$computerSymbols
+                  result=$(rowChecking $count $computerSymbols)
                else
                   cell=$(randomValues)
                   cell=$(cellChecking $cell)
