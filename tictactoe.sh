@@ -330,24 +330,28 @@ function cornerMove(){
     done
            echo $((move))
 }
+function sideMove(){
+     cell=1
+     while [[ $cell -le 7 ]]
+     do
+          if [[ {$board[$cell]} == "_" ]]
+          then
+              move=$(($cell))
+              break
+           fi
+              cell=$(( $cell + 2 ))
+    done
+            echo $((move))
+
+}
 
 function centerMove(){
     center=4
-    cell=1
-    while [[ $cell -le 7 ]]
-    do
-        if [[ ${board[4]} == "_" ]]
+        if [[ ${board[$center]} == "_" ]]
         then
-            val=4
-            move=$(($val))
+            move=$(($center))
             break
-        elif [[ {$board[$cell]} == "_" ]]
-        then
-           move=$(($cell))
-           break
         fi
-           cell=$(( $cell + 2 ))
-    done
             echo $((move))
 }
 
@@ -382,6 +386,8 @@ function playGame(){
                          # cell=$(randomValues)
                          # cell=$(cellChecking $cell)
                           cell=$(centerMove)
+                          board[$cell]=$computerSymbols
+                          cell=$(sideMove)
                           board[$cell]=$computerSymbols
                      fi
                   result=$(rowChecking $count $computerSymbols)
