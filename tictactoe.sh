@@ -9,7 +9,8 @@ TAIL=1
 count=0
 userStarts=1
 computerStarts=2
-
+cornerMove=0
+blockMoves=0
 function calculateToss(){
 toss=$((RANDOM%2))
 }
@@ -78,15 +79,17 @@ function randomValues(){
 
 function printValues(){
 
-     for i in "${!board[@]}"
-     do
-      echo "$i=>${board[$i]}"
-    done
-  #  echo "${board[0]} | ${board[1]} | ${board[2]}"
-  #  echo "---------------------------------------"
-  #  echo "${board[3]} | ${board[4]} | ${board[5]}"
-  #  echo "---------------------------------------"
-  #  echo "${board[6]} | ${board[7]} | ${board[8]}"
+   #  for i in "${!board[@]}"
+   #  do
+   #   echo "$i=>${board[$i]}"
+   # done
+    echo "${board[0]} | ${board[1]} | ${board[2]}"
+    echo       "----------------------------"
+    echo "${board[0]} | ${board[1]} | ${board[2]}"
+    echo       "----------------------------"
+    echo "${board[3]} | ${board[4]} | ${board[5]}"
+    echo       "----------------------------"
+    echo "${board[6]} | ${board[7]} | ${board[8]}"
        echo $((0))
 }
 
@@ -176,25 +179,38 @@ function diagonalBlock(){
                #board[8]=$computerSymbols
                val=8
                block=$(($val))
+               blockMoves=1
                #print=$(printValues)
            elif [[ ${board[4]} == ${board[8]} && ${board[0]} == "_" && ${board[4]} != "_" && ${board[8]} != "_" ]]
            then
                #board[0]=$computerSymbols
                val=0
                block=$(($val))
+               blockMoves=1
                #print=$(printValues)
            elif [[ ${board[2]} == ${board[4]} &&  ${board[6]} == "_" && ${board[2]} != "_" && ${board[4]} != "_" ]]
            then
                #board[6]=$computerSymbols
                val=6
                block=$(($val))
+               blockMoves=1
                #print=$(printValues)
+           elif [[ ${board[0]} == ${board[8]} &&  ${board[4]} == "_" && ${board[0]} != "_" && ${board[8]} != "_" || ${board[2]} == ${board[6]} &&  ${board[4]} == "_" && ${board[2]} != "_" && ${board[6]} != "_" ]]
+           then
+                # board[$firstValue]=$computerSymbols
+                val=4
+                block=$(($val))
+                blockMoves=1
+              # print=$(printValues)
+               break
+
            else
                 if [[ ${board[4]} == ${board[6]} && ${board[2]} == "_" && ${board[6]} != "_" && ${board[4]} != "_" ]]
                 then
                     #board[2]=$computerSymbols
                     val=2
                     block=$(($val))
+                    blockMoves=1
                     #print=$(printValues)
                 fi
            fi
@@ -215,20 +231,23 @@ function columnBlock(){
                 counts=$(($counts+3))
               # board[$thirdValue]=$computerSymbols
                 block=$thirdValue
+                blockMoves=1
               # print=$(printValues)
                break
             elif [[ ${board[secondValue]} == ${board[thirdValue]} && ${board[firstValue]}  == "_" &&  ${board[secondValue]} != "_" && ${board[thirdValue]} != "_" ]]
             then
-               counts=$(($counts+3))
+                counts=$(($counts+3))
               # board[$firstValue]=$computerSymbols
                 block=$firstValue
+                blockMoves=1
               # print=$(printValues)
                break
-            elif [[   ${board[firstValue]} == ${board[thirdValue]} && ${board[secondValue]}  == "_" &&  ${board[firstValue]} != "_" && ${board[thirdValue]} != "_" ]]
-              then
+            elif [[ ${board[firstValue]} == ${board[thirdValue]} && ${board[secondValue]}  == "_" &&  ${board[firstValue]} != "_" && ${board[thirdValue]} != "_" ]]
+             then
                 counts=$(($counts+3))
               # board[$firstValue]=$computerSymbols
                 block=$secondValue
+                blockMoves=1
               # print=$(printValues)
                break
 
@@ -258,18 +277,21 @@ function rowBlock(){
           then
           #  board[$thirdValue]=$computerSymbols
              block=$thirdValue
+             blockMoves=1
              print=$(printValues)
              break
           elif [[ ${board[secondValue]} == ${board[thirdValue]} &&  ${board[firstValue]} == "_" && ${board[secondValue]} != "_" && ${board[thirdValue]} != "_" ]]
           then
            #  board[$firstValue]=$computerSymbols
               block=$firstValue
+             blockMoves=1
              print=$(printValues)
              break
           elif [[ ${board[firstValue]} == ${board[thirdValue]} &&  ${board[secondValue]} == "_" && ${board[firstValue]} != "_" && ${board[thirdValue]} != "_" ]]
            then
             #  board[$thirdValue]=$computerSymbols
              block=$secondValue
+             blockMoves=1
              print=$(printValues)
              break
 
@@ -285,6 +307,30 @@ function rowBlock(){
 
 }
 
+function cornerMove(){
+    leftUpcor=0
+    corner=6
+    cor=$(($leftUpCor))
+       while [[ $cor -le 3 || $corner -le 8 ]]
+       do
+          if [[ ${board[Cor]} == "_" ]]
+          then
+              move=$(($cor))
+              cornerMove=$(($cornerMove+1))
+              break
+          fi
+              cor=$(($cor + 2))
+          if [[ ${board[corner]} == "_" ]]
+          then
+              move=$(($corner))
+              cornerMove=$(($cornerMove+1))
+              break
+          fi
+             corner=$(($corner+2))
+    done
+           echo $((move))
+}
+
 function playGame(){
      local starts=$1
      local computerSymbols=$2
@@ -296,8 +342,8 @@ function playGame(){
               read -p "Enter a cell number" cells
               board[$cells]=$userSymbols
               count=$(( $count+1 ))
-              print=$(printValues)
               starts=$(alternatePlay $starts)
+              print=$(printValues)
                if [[ $count -ge 5 ]]
                then
                   result=$(rowChecking $count $computerSymbols)
@@ -311,27 +357,32 @@ function playGame(){
                then
                   block=$(rowBlock $computerSymbols)
                   board[block]=$computerSymbols
+                     if [[ $blockMoves -eq 0 ]]
+                     then
+                          cell=$(randomValues)
+                          cell=$(cellChecking $cell)
+                          board[$cell]=$computerSymbols
+                     fi
                   result=$(rowChecking $count $computerSymbols)
                else
-                  cell=$(randomValues)
-                  cell=$(cellChecking $cell)
-                  board[$cell]=$computerSymbols
+                  move=$(cornerMove)
+                  board[move]=$computerSymbols
                fi
-               count=$(( $count+1 ))
-               print=$(printValues)
-               starts=$(alternatePlay $starts)
-               if [[ $result -eq 1 ]]
-                  then
-                     break 
+                  count=$(( $count+1 ))
+                  starts=$(alternatePlay $starts)
+                  print=$(printValues)
+                      if [[ $result -eq 1 ]]
+                      then
+                          break 
+                      fi
                fi
-           fi
-        done
-              if [[ $result -eq 1 ]]
-              then
-                 echo "match win"
-              else
-                 echo "match tie"
-              fi
+               done
+                      if [[ $result -eq 1 ]]
+                      then
+                          echo "match win"
+                      else
+                          echo "match tie"
+                      fi
 }
 
 calculateToss
